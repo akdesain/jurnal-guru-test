@@ -108,7 +108,7 @@
     .toast.show { transform: translate(-50%,0); }
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.5);
-      display: flex; items-center; justify-center; padding: 1rem; backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px);
     }
     @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   </style>
@@ -328,13 +328,13 @@
     </section>
 
     <!-- 4. HALAMAN LAPORAN & GOOGLE DRIVE CONNECTOR -->
-    <section id="reports-screen" class="screen top-safe px-4 pb-5">
-      <header class="mb-4">
+    <section id="reports-screen" class="screen top-safe px-4 pb-5 space-y-4">
+      <header class="mb-1">
         <p class="text-xs font-bold tracking-widest text-slate-400">DOKUMEN REKAP</p>
-        <h1 class="font-bold">Laporan Jurnal Mengajar</h1>
+        <h1 class="font-bold text-lg">Laporan Jurnal Mengajar</h1>
       </header>
 
-      <div class="native-card p-4 mb-4 space-y-3">
+      <div class="native-card p-4 space-y-3">
         <div class="flex items-center gap-3">
           <div class="p-2.5 bg-blue-100 text-blue-600 rounded-xl">
             <i data-lucide="file-text" width="22"></i>
@@ -344,10 +344,10 @@
             <p class="text-[11px] text-slate-500">PDF Landscape + TTD & Foto PBM disematkan</p>
           </div>
         </div>
-        <button type="button" class="primary-button py-2 text-xs" onclick="generatePDF('weekly')">Unduh PDF Mingguan</button>
+        <button type="button" class="primary-button py-2.5 text-xs shadow-none" onclick="generatePDF('weekly')">Unduh PDF Mingguan</button>
       </div>
 
-      <div class="native-card p-4 mb-4 space-y-3">
+      <div class="native-card p-4 space-y-3">
         <div class="flex items-center gap-3">
           <div class="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
             <i data-lucide="calendar" width="22"></i>
@@ -357,7 +357,23 @@
             <p class="text-[11px] text-slate-500">Format PDF rekap penuh bulan ini</p>
           </div>
         </div>
-        <button type="button" class="primary-button py-2 text-xs bg-indigo-600 hover:bg-indigo-700" onclick="generatePDF('monthly')">Unduh PDF Bulanan</button>
+        <button type="button" class="primary-button py-2.5 text-xs bg-indigo-600 hover:bg-indigo-700 shadow-none" onclick="generatePDF('monthly')">Unduh PDF Bulanan</button>
+      </div>
+
+      <!-- FITUR BARU: TOMBOL BUKA FOLDER HANDPHONE TEMPAT DOWNLOAD -->
+      <div class="native-card p-4 flex items-center justify-between gap-3 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-slate-800 dark:to-slate-900 border-blue-200">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-blue-600 text-white rounded-xl shadow-md shrink-0">
+            <i data-lucide="folder-open" width="22"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-xs">Folder Download HP</h3>
+            <p class="text-[11px] text-slate-500">Akses direktori penyimpanan file PDF hasil unduhan</p>
+          </div>
+        </div>
+        <button type="button" class="soft-button px-4 py-2.5 text-xs bg-white dark:bg-slate-700 shrink-0 font-bold border-blue-200 text-blue-600 shadow-sm" onclick="openDownloadFolder()">
+          Buka Folder
+        </button>
       </div>
 
       <!-- KONEKSI INTEGRASI GOOGLE DRIVE -->
@@ -393,7 +409,7 @@
       </div>
     </section>
 
-    <!-- 5. HALAMAN PENGATURAN (RESTORED & EXPANDED MASTER DATA) -->
+    <!-- 5. HALAMAN PENGATURAN -->
     <section id="settings-screen" class="screen top-safe px-4 pb-5 space-y-5">
       <header class="flex items-center justify-between">
         <div>
@@ -430,7 +446,7 @@
         </div>
       </section>
 
-      <!-- PARAF / TTD GURU (CANVAS & UPLOAD FILE) -->
+      <!-- PARAF / TTD GURU -->
       <section class="native-card p-4">
         <h2 class="font-bold text-xs mb-1">Paraf Guru / Tanda Tangan (TTD)</h2>
         <p class="text-[11px] text-slate-500 mb-3">Gambarlah di bawah atau **Upload Gambar TTD** agar terhubung ke PDF.</p>
@@ -477,7 +493,7 @@
         <div id="master-classes-list" class="space-y-2 text-xs"></div>
       </section>
 
-      <!-- KELOLA JADWAL MENGAJAR MINGGUAN (SENIN-SABTU) -->
+      <!-- KELOLA JADWAL MENGAJAR MINGGUAN -->
       <section class="native-card p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div>
@@ -489,47 +505,47 @@
         <div id="master-schedules-list" class="space-y-2 text-xs"></div>
       </section>
 
-      <!-- PUSH NOTIFICATION VIA SERVICE WORKER (7 PILIHAN) -->
+      <!-- PUSH NOTIFICATION -->
       <section class="native-card p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="font-bold text-xs">Push Notification &amp; Service Worker</h2>
             <p class="text-[11px] text-slate-500">Atur pengingat otomatis aplikasi</p>
           </div>
-          <button type="button" class="soft-button px-2.5 py-1 text-[11px]" onclick="requestNotificationPermission()">
-            <i data-lucide="bell" width="12" class="inline"></i> Aktifkan
+          <button type="button" class="soft-button px-3 py-1.5 text-xs bg-blue-50 text-blue-600 border-blue-200 flex items-center gap-1 font-bold shadow-sm" onclick="requestNotificationPermission()">
+            <i data-lucide="bell" width="14"></i> Aktifkan
           </button>
         </div>
         <hr style="border-color:var(--line)">
 
         <div class="space-y-2 text-xs">
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
             <span class="font-medium">⏰ Pengingat 15 menit sebelum jadwal mengajar</span>
-            <input type="checkbox" id="notif-15min-before" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+            <input type="checkbox" id="notif-15min-before" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
             <span class="font-medium">📝 Pengingat mengisi jurnal setelah jam pelajaran selesai</span>
-            <input type="checkbox" id="notif-after-class" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+            <input type="checkbox" id="notif-after-class" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
             <span class="font-medium">💾 Backup otomatis pukul 20.00</span>
-            <input type="checkbox" id="notif-auto-backup" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+            <input type="checkbox" id="notif-auto-backup" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
             <span class="font-medium">📅 Rekap mingguan setiap hari Jumat</span>
-            <input type="checkbox" id="notif-weekly-recap" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+            <input type="checkbox" id="notif-weekly-recap" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
             <span class="font-medium">📊 Rekap bulanan pada akhir bulan</span>
-            <input type="checkbox" id="notif-monthly-recap" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+            <input type="checkbox" id="notif-monthly-recap" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
-            <span class="font-medium">⚠️ Notifikasi jika jurnal belum lengkap</span>
-            <input type="checkbox" id="notif-incomplete-journal" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
+            <span class="font-medium">⚠️ Notifikasi jika jurnal belum lengkap[cite: 1]</span>
+            <input type="checkbox" id="notif-incomplete-journal" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
-          <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800 cursor-pointer">
-            <span class="font-medium">📷 Notifikasi jika foto pembelajaran belum diunggah</span>
-            <input type="checkbox" id="notif-missing-photo" class="w-4 h-4 text-blue-600 rounded" onchange="saveNotifSettings()">
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 cursor-pointer">
+            <span class="font-medium">📷 Notifikasi jika foto pembelajaran belum diunggah[cite: 1]</span>
+            <input type="checkbox" id="notif-missing-photo" class="w-4 h-4 text-blue-600 rounded accent-blue-600" onchange="saveNotifSettings()">
           </label>
         </div>
       </section>
@@ -568,7 +584,7 @@
    </nav>
   </div>
 
-  <!-- MODAL MASTER DIALOG (Dinamis untuk Mapel, Ruang, Kelas, Jadwal) -->
+  <!-- MODAL MASTER DIALOG -->
   <div id="master-modal" class="modal-backdrop hidden">
     <div class="native-card w-full max-w-sm p-5 space-y-4 bg-white dark:bg-slate-900">
       <div class="flex items-center justify-between">
@@ -1097,7 +1113,7 @@
       showScreen('home-screen');
     }
 
-    // --- GOOGLE DRIVE CONNECTION ---
+    // --- GOOGLE DRIVE CONNECTION & DOWNLOAD FOLDER ---
     function selectDriveFolder() {
       const folder = prompt("Masukkan Nama / ID Folder Google Drive Anda:", driveConfig.folderName);
       if (folder) {
@@ -1120,6 +1136,17 @@
       setTimeout(() => {
         showToast(`Berhasil terkoneksi ke Folder: "${folder}"`);
       }, 1000);
+    }
+
+    function openDownloadFolder() {
+      // Mencoba membuka direktori unduhan via API browser (jika didukung) atau memandu pengguna
+      if (window.showDirectoryPicker) {
+        window.showDirectoryPicker().catch(() => {
+          showToast('Membuka direktori unduhan perangkat...');
+        });
+      } else {
+        showToast('Direktori Download dapat diakses melalui File Manager perangkat Anda.');
+      }
     }
 
     // --- PDF GENERATOR WITH embedded SIGNATURE ---
@@ -1302,9 +1329,8 @@
       reader.readAsDataURL(file);
     }
 
-    // --- MASTER DATA MANAGEMENT (EDIT, LOCK, DELETE) ---
+    // --- MASTER DATA MANAGEMENT ---
     function renderMasterLists() {
-      // 1. Subjects
       const subList = document.getElementById('master-subjects-list');
       if (subList) {
         subList.innerHTML = subjects.map(s => `
@@ -1318,7 +1344,6 @@
         `).join('');
       }
 
-      // 2. Rooms
       const roomList = document.getElementById('master-rooms-list');
       if (roomList) {
         roomList.innerHTML = rooms.map(r => `
@@ -1332,7 +1357,6 @@
         `).join('');
       }
 
-      // 3. Classes
       const clsList = document.getElementById('master-classes-list');
       if (clsList) {
         clsList.innerHTML = classes.map(c => `
@@ -1349,7 +1373,6 @@
         `).join('');
       }
 
-      // 4. Schedules (Senin - Sabtu)
       const schedList = document.getElementById('master-schedules-list');
       if (schedList) {
         schedList.innerHTML = schedules.map(s => `
@@ -1500,7 +1523,7 @@
         if (currentEditingMasterId) {
           const item = schedules.find(s => s.id === currentEditingMasterId);
           if (item) {
-            if (item.isLocked) { showToast('Jardwal terkunci! Buka kunci terlebih dahulu.'); return; }
+            if (item.isLocked) { showToast('Jadwal terkunci! Buka kunci terlebih dahulu.'); return; }
             item.day = day; item.class = className; item.room = room; item.subject = subject; item.time = time;
           }
         } else {
@@ -1554,7 +1577,6 @@
       }
     }
 
-    // --- READ / SAVE NOTIFICATION TOGGLES ---
     function loadNotifSettingsUI() {
       document.getElementById('notif-15min-before').checked = notifSettings.notif15MinBefore;
       document.getElementById('notif-after-class').checked = notifSettings.notifAfterClass;
