@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JURNAL GURU DIGITAL</title>
+  
+  <!-- PWA Metadata & Settings -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#1769d1">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- External Styles & Libraries -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #163458;
+      --muted: #62728a;
+      --line: #dbe6f5;
+      --canvas: #eef5ff;
+      --surface: #ffffff;
+      --blue: #1769d1;
+      --blue-deep: #0e4a9d;
+      --blue-soft: #e4f0ff;
+      --nav: rgba(255,255,255,.94);
+      --input: #f8fbff;
+      --shadow: 0 14px 34px rgba(24,72,131,.10);
+    }
+    body.dark-mode {
+      --ink: #e7f0ff;
+      --muted: #aebfd7;
+      --line: #28476e;
+      --canvas: #07172d;
+      --surface: #102642;
+      --blue: #55a6ff;
+      --blue-deep: #9acbff;
+      --blue-soft: #173a66;
+      --nav: rgba(10,29,54,.95);
+      --input: #0b203a;
+      --shadow: 0 18px 42px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { touch-action: manipulation; }
+    .app-shell {
+      width: 100%;
+      min-height: 100vh;
+      max-width: 620px;
+      margin: 0 auto;
+      padding-bottom: 98px;
+      overflow-x: hidden;
+    }
+    .screen { display: none; animation: rise .25s ease both; }
+    .screen.active { display: block; }
+    .top-safe { padding-top: max(1.2rem, env(safe-area-inset-top)); }
+    .native-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+      box-shadow: 0 20px 38px rgba(16,73,158,.26);
+    }
+    .form-control {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: .86rem .95rem;
+      background: var(--input);
+      color: var(--ink);
+    }
+    .form-control:focus {
+      border-color: var(--blue);
+      outline: none;
+    }
+    .primary-button {
+      width: 100%;
+      padding: 1rem;
+      border: 0;
+      border-radius: 17px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(23,105,209,.25);
+    }
+    .soft-button {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--blue-soft);
+      color: var(--blue-deep);
+      font-weight: 700;
+    }
+    .icon-button {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--blue-deep);
+      padding: .72rem;
+    }
+    .counter {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface);
+      color: var(--blue-deep);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .bottom-nav {
+      position: fixed;
+      z-index: 30;
+      bottom: 0;
+      left: 50%;
+      display: flex;
+      width: min(100%, 620px);
+      justify-content: space-around;
+      transform: translateX(-50%);
+      padding: .6rem .8rem calc(.6rem + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: var(--nav);
+      backdrop-filter: blur(16px);
+    }
+    .nav-button {
+      min-width: 58px;
+      border-radius: 15px;
+      padding: .45rem;
+      color: var(--muted);
+      font-size: .67rem;
+      font-weight: 700;
+    }
+    .nav-button.active { background: var(--blue-soft); color: var(--blue-deep); }
+    .toast {
+      position: fixed;
+      z-index: 100;
+      top: 18px;
+      left: 50%;
+      width: min(calc(100% - 32px),520px);
+      transform: translate(-50%,-160%);
+      border-radius: 16px;
+      padding: .88rem 1rem;
+      background: #0d2747;
+      color: #fff;
+      box-shadow: 0 16px 32px rgba(0,0,0,.25);
+      font-size: .88rem;
+      font-weight: 600;
+      transition: transform .28s ease;
+    }
+    .toast.show { transform: translate(-50%,0); }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+ </head>
+ <body>
+  <div class="app-shell">
+   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+   
+   <main>
+    <!-- 1. LAYAR AUTENTIKASI (REGISTER & LOGIN GURU) -->
+    <section id="auth-screen" class="screen active top-safe px-4 pb-5 flex flex-col justify-center min-h-[85vh]">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-3xl mx-auto flex items-center justify-center mb-3">
+          <i data-lucide="graduation-cap" width="36"></i>
+        </div>
+        <h1 class="text-2xl font-bold">Jurnal Guru Digital</h1>
+        <p class="text-sm text-slate-500 mt-1" id="auth-subtitle">Silakan login untuk mengakses aplikasi</p>
+      </div>
+
+      <!-- Form Login -->
+      <form id="login-form" class="native-card p-5 space-y-4" onsubmit="event.preventDefault(); handleLogin();">
+        <div>
+          <label class="block text-xs font-bold mb-1" for="login-email">Email / NIP</label>
+          <input id="login-email" class="form-control" type="text" placeholder="Masukkan Email atau NIP" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1" for="login-password">Kata Sandi</label>
+          <input id="login-password" class="form-control" type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="primary-button w-full">Masuk Aplikasi</button>
+        <p class="text-center text-xs mt-3 text-slate-500">
+          Belum punya akun? 
+          <button type="button" class="text-blue-600 font-bold hover:underline" onclick="switchAuthMode('register')">Daftar Akun Guru</button>
+        </p>
+      </form>
+
+      <!-- Form Register -->
+      <form id="register-form" class="native-card p-5 space-y-3 hidden" onsubmit="event.preventDefault(); handleRegister();">
+        <div>
+          <label class="block text-xs font-bold mb-1" for="reg-name">Nama Lengkap & Gelar</label>
+          <input id="reg-name" class="form-control" type="text" placeholder="Contoh: Budi Santoso, S.Pd." required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1" for="reg-nip">NIP / NUPTK</label>
+          <input id="reg-nip" class="form-control" type="text" placeholder="19850123..." required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1" for="reg-email">Email</label>
+          <input id="reg-email" class="form-control" type="email" placeholder="guru@sekolah.sch.id" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1" for="reg-password">Kata Sandi</label>
+          <input id="reg-password" class="form-control" type="password" placeholder="Minimal 6 karakter" minlength="6" required>
+        </div>
+        <button type="submit" class="primary-button w-full mt-2">Buat Akun Guru</button>
+        <p class="text-center text-xs mt-3 text-slate-500">
+          Sudah punya akun? 
+          <button type="button" class="text-blue-600 font-bold hover:underline" onclick="switchAuthMode('login')">Login di sini</button>
+        </p>
+      </form>
+    </section>
+
+    <!-- 2. LAYAR BERANDA (HOME) -->
+    <section id="home-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold tracking-widest text-slate-400">JURNAL MENGAJAR</p>
+          <h1 id="teacher-name-display" class="text-lg font-bold">Selamat Datang</h1>
+        </div>
+        <button type="button" class="icon-button" onclick="showScreen('settings-screen')">
+          <i data-lucide="settings-2" width="20"></i>
+        </button>
+      </header>
+
+      <section class="hero-card mb-5 p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p id="today-day" class="text-sm font-semibold opacity-85">Hari Ini</p>
+            <h2 id="today-date" class="mt-1 text-xl font-bold">-</h2>
+          </div>
+          <div class="text-right">
+            <p id="clock" class="text-3xl font-bold tracking-tight">00:00</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="font-bold">Jadwal Mengajar Hari Ini</h2>
+        <button type="button" class="text-sm font-bold text-blue-600" onclick="showScreen('dashboard-screen')">Riwayat</button>
+      </div>
+      <div id="schedule-list" class="space-y-3">
+        <div class="native-card p-4 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-sm">Kelas XI DPIB 1</p>
+            <p class="text-xs text-slate-500">Jam Ke 1 - 4 (07:00 - 10:00)</p>
+          </div>
+          <button type="button" class="soft-button px-3 py-1.5 text-xs" onclick="showScreen('journal-screen')">Isi Jurnal</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. LAYAR JURNAL MENGAJAR -->
+    <section id="journal-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-5 flex items-center gap-3">
+        <button type="button" class="icon-button" onclick="showScreen('home-screen')">
+          <i data-lucide="arrow-left" width="20"></i>
+        </button>
+        <div>
+          <p class="text-xs font-bold tracking-widest text-slate-400">INPUT DATA</p>
+          <h1 class="font-bold">Isi Jurnal Mengajar</h1>
+        </div>
+      </header>
+
+      <!-- Absensi -->
+      <section class="mb-5 native-card p-4">
+        <h2 class="font-bold mb-3 text-sm">Kehadiran Siswa</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-emerald-50 p-3">
+            <span class="text-xs font-bold">Hadir</span>
+            <div class="mt-2 flex items-center justify-between">
+              <button class="counter" type="button" onclick="adjustAttendance('present',-1)">−</button>
+              <strong id="present-count" class="text-lg">34</strong>
+              <button class="counter" type="button" onclick="adjustAttendance('present',1)">+</button>
+            </div>
+          </div>
+          <div class="rounded-2xl bg-amber-50 p-3">
+            <span class="text-xs font-bold">Sakit</span>
+            <div class="mt-2 flex items-center justify-between">
+              <button class="counter" type="button" onclick="adjustAttendance('sick',-1)">−</button>
+              <strong id="sick-count" class="text-lg">1</strong>
+              <button class="counter" type="button" onclick="adjustAttendance('sick',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mata Pelajaran Dropdown -->
+      <section class="mb-4">
+        <label class="mb-2 block text-xs font-bold" for="lesson-topic">Mata Pelajaran</label>
+        <select id="lesson-topic" class="form-control text-sm"></select>
+      </section>
+
+      <section class="mb-4">
+        <label class="mb-2 block text-xs font-bold" for="sub-topic">Materi / Sub Pokok Bahasan</label>
+        <input id="sub-topic" class="form-control text-sm" type="text" placeholder="Contoh: Desain Denah Lantai 1">
+      </section>
+
+      <button type="button" class="primary-button flex items-center justify-center gap-2" onclick="saveJournal()">
+        <i data-lucide="file-check-2" width="20"></i>
+        <span>Simpan Jurnal</span>
+      </button>
+    </section>
+
+    <!-- 4. LAYAR DASHBOARD / RIWAYAT -->
+    <section id="dashboard-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold tracking-widest text-slate-400">RINGKASAN</p>
+          <h1 class="font-bold">Riwayat Mengajar</h1>
+        </div>
+        <button type="button" class="icon-button" onclick="showScreen('home-screen')">
+          <i data-lucide="x" width="20"></i>
+        </button>
+      </header>
+      <div id="dashboard-history" class="space-y-3">
+        <p class="text-xs text-slate-500 text-center py-4">Belum ada catatan riwayat jurnal yang tersimpan.</p>
+      </div>
+    </section>
+
+    <!-- 5. LAYAR LAPORAN -->
+    <section id="reports-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-5">
+        <p class="text-xs font-bold tracking-widest text-slate-400">DOKUMEN</p>
+        <h1 class="font-bold">Laporan Jurnal Mengajar</h1>
+      </header>
+      <section class="native-card p-4 mb-4">
+        <h2 class="font-bold text-sm mb-1">Cetak Laporan Mingguan</h2>
+        <p class="text-xs text-slate-500 mb-3">Unduh berkas laporan dalam bentuk PDF</p>
+        <button type="button" class="primary-button py-2 text-xs" onclick="showToast('Memproses berkas PDF...')">Download PDF Mingguan</button>
+      </section>
+    </section>
+
+    <!-- 6. LAYAR PENGATURAN (SETTINGS) -->
+    <section id="settings-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-5 flex items-center gap-3">
+        <button type="button" class="icon-button" onclick="showScreen('home-screen')">
+          <i data-lucide="arrow-left" width="20"></i>
+        </button>
+        <div>
+          <p class="text-xs font-bold tracking-widest text-slate-400">KONFIGURASI</p>
+          <h1 class="font-bold">Pengaturan Aplikasi</h1>
+        </div>
+      </header>
+
+      <!-- Pengaturan Mata Pelajaran -->
+      <section class="native-card mb-5 p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="font-bold text-sm">Pengaturan Mata Pelajaran</h2>
+            <p class="mt-1 text-xs text-slate-500">Tambah atau hapus mata pelajaran yang Anda ampu</p>
+          </div>
+          <i data-lucide="book-open-check" width="20" class="text-blue-600"></i>
+        </div>
+        <div id="subject-settings-list" class="mt-4 space-y-2"></div>
+        <form id="add-subject-form" class="mt-3 border-t pt-3 flex gap-2" style="border-color:var(--line)" onsubmit="event.preventDefault(); addSubject();">
+          <input id="new-subject-input" class="form-control text-xs" type="text" placeholder="Contoh: Matematika Wajib">
+          <button type="submit" class="soft-button px-3 py-2 text-xs shrink-0 flex items-center gap-1">
+            <i data-lucide="plus" width="14"></i> <span>Tambah</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Google Drive Integrasi -->
+      <section class="native-card mb-5 p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="font-bold text-sm">Integrasi Google Drive</h2>
+            <p class="mt-1 text-xs text-slate-500">Simpan otomatis berkas PDF ke cloud storage</p>
+          </div>
+          <i data-lucide="cloud-upload" width="20" class="text-blue-600"></i>
+        </div>
+        <div class="mt-4 p-3 rounded-2xl flex items-center justify-between" style="background:var(--blue-soft)">
+          <div>
+            <p id="gdrive-status-text" class="text-xs font-bold text-blue-900">Belum Terhubung</p>
+            <p id="gdrive-email-text" class="text-[11px] text-slate-500">Tautkan akun Google untuk backup PDF</p>
+          </div>
+          <button id="gdrive-btn" type="button" class="primary-button py-2 px-3 text-xs w-auto" onclick="toggleGoogleDrive()">Koneksikan</button>
+        </div>
+      </section>
+
+      <!-- Push Notification Settings -->
+      <section class="native-card mb-5 p-4">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div>
+            <h2 class="font-bold text-sm">Push Notification HP</h2>
+            <p class="mt-1 text-xs text-slate-500">Pengingat otomatis di layar HP Anda</p>
+          </div>
+          <i data-lucide="bell-ring" width="20" class="text-blue-600"></i>
+        </div>
+        <button id="enable-notif-btn" type="button" class="soft-button w-full mb-3 py-2 text-xs flex items-center justify-center gap-2" onclick="requestNotificationPermission()">
+          <i data-lucide="shield-alert" width="16"></i> <span id="notif-permission-status">Aktifkan Izin Notifikasi HP</span>
+        </button>
+        <div class="space-y-2 border-t pt-3 text-xs" style="border-color:var(--line)">
+          <label class="flex items-center justify-between cursor-pointer py-1">
+            <span>Pengingat 15 menit sebelum mengajar</span>
+            <input type="checkbox" id="notif-15min" class="w-4 h-4 accent-blue-600" checked onchange="saveNotifSettings()">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer py-1">
+            <span>Pengingat isi jurnal selesai jam kelas</span>
+            <input type="checkbox" id="notif-after-class" class="w-4 h-4 accent-blue-600" checked onchange="saveNotifSettings()">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer py-1">
+            <span>Rekap mingguan (Jumat)</span>
+            <input type="checkbox" id="notif-weekly" class="w-4 h-4 accent-blue-600" checked onchange="saveNotifSettings()">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer py-1">
+            <span>Rekap bulanan (Akhir bulan)</span>
+            <input type="checkbox" id="notif-monthly" class="w-4 h-4 accent-blue-600" checked onchange="saveNotifSettings()">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer py-1">
+            <span>Peringatan jika jurnal belum lengkap</span>
+            <input type="checkbox" id="notif-incomplete" class="w-4 h-4 accent-blue-600" checked onchange="saveNotifSettings()">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer py-1">
+            <span>Peringatan jika foto belum diunggah</span>
+            <input type="checkbox" id="notif-nophoto" class="w-4 h-4 accent-blue-600" checked onchange="saveNotifSettings()">
+          </label>
+        </div>
+      </section>
+
+      <!-- Dark Mode & Logout -->
+      <section class="native-card mb-5 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-bold text-xs">Mode Gelap</p>
+            <p class="text-[11px] text-slate-500">Ubah tema tampilan aplikasi</p>
+          </div>
+          <button type="button" class="icon-button p-2" onclick="toggleDarkMode()">
+            <i data-lucide="moon" width="18"></i>
+          </button>
+        </div>
+        <button type="button" class="soft-button w-full mt-4 py-2.5 text-xs flex items-center justify-center gap-2 text-rose-600 border-rose-200" onclick="handleLogout()">
+          <i data-lucide="log-out" width="16"></i>
+          <span>Keluar Akun (Logout)</span>
+        </button>
+      </section>
+    </section>
+   </main>
+
+   <!-- NAVIGASI BAWAH -->
+   <nav class="bottom-nav">
+     <button class="nav-button active flex flex-col items-center gap-1" onclick="showScreen('home-screen')">
+       <i data-lucide="home" width="18"></i>
+       <span>Beranda</span>
+     </button>
+     <button class="nav-button flex flex-col items-center gap-1" onclick="showScreen('journal-screen')">
+       <i data-lucide="book-open" width="18"></i>
+       <span>Jurnal</span>
+     </button>
+     <button class="nav-button flex flex-col items-center gap-1" onclick="showScreen('reports-screen')">
+       <i data-lucide="file-text" width="18"></i>
+       <span>Laporan</span>
+     </button>
+     <button class="nav-button flex flex-col items-center gap-1" onclick="showScreen('settings-screen')">
+       <i data-lucide="settings" width="18"></i>
+       <span>Pengaturan</span>
+     </button>
+   </nav>
+  </div>
+
+  <!-- JAVASCRIPT SYSTEM LOGIC -->
+  <script>
+    // -------------------------------------------------------------
+    // STATE & DATA LOKAL
+    // -------------------------------------------------------------
+    let registeredTeachers = JSON.parse(localStorage.getItem('teachers_db')) || [];
+    let currentTeacher = JSON.parse(localStorage.getItem('active_teacher_session')) || null;
+    let subjects = JSON.parse(localStorage.getItem('app_subjects')) || [
+      'KKA (Koding & Kecerdesan Artifisial)',
+      'KIdK (Kreatifitas, Inovasi & Kewirausahaan)',
+      'MPP (Mata Pelajaran Pilihan: Autodesk Revit)',
+      'Lainnya'
+    ];
+    let gdriveConnected = localStorage.getItem('gdrive_connected') === 'true';
+
+    // -------------------------------------------------------------
+    // PWA SERVICE WORKER REGISTER
+    // -------------------------------------------------------------
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('PWA SW Registered:', reg.scope))
+          .catch((err) => console.error('PWA SW Register Failed:', err));
+      });
+    }
+
+    // -------------------------------------------------------------
+    // SCREEN NAVIGATION & AUTH CONTROL
+    // -------------------------------------------------------------
+    function showScreen(screenId) {
+      if (!currentTeacher && screenId !== 'auth-screen') {
+        screenId = 'auth-screen';
+      }
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+
+      // Update Nav Class
+      document.querySelectorAll('.nav-button').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(screenId));
+      });
+    }
+
+    function switchAuthMode(mode) {
+      const loginForm = document.getElementById('login-form');
+      const regForm = document.getElementById('register-form');
+      const subtitle = document.getElementById('auth-subtitle');
+
+      if (mode === 'register') {
+        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden');
+        subtitle.textContent = 'Daftarkan akun guru baru';
+      } else {
+        regForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        subtitle.textContent = 'Silakan login untuk mengakses aplikasi';
+      }
+    }
+
+    function handleRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const nip = document.getElementById('reg-nip').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const password = document.getElementById('reg-password').value;
+
+      const exists = registeredTeachers.some(t => t.email === email || t.nip === nip);
+      if (exists) {
+        showToast('Email atau NIP sudah terdaftar!');
+        return;
+      }
+
+      const newTeacher = { name, nip, email, password };
+      registeredTeachers.push(newTeacher);
+      localStorage.setItem('teachers_db', JSON.stringify(registeredTeachers));
+      
+      showToast('Pendaftaran berhasil! Silakan login.');
+      switchAuthMode('login');
+      document.getElementById('login-email').value = email;
+    }
+
+    function handleLogin() {
+      const inputUser = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+
+      const teacher = registeredTeachers.find(
+        t => (t.email === inputUser || t.nip.toLowerCase() === inputUser) && t.password === password
+      );
+
+      if (!teacher) {
+        showToast('Email/NIP atau Kata Sandi salah!');
+        return;
+      }
+
+      currentTeacher = teacher;
+      localStorage.setItem('active_teacher_session', JSON.stringify(teacher));
+      showToast(`Selamat datang, ${teacher.name}`);
+      checkAuthAndNavigate();
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('active_teacher_session');
+      currentTeacher = null;
+      showToast('Berhasil keluar akun');
+      checkAuthAndNavigate();
+    }
+
+    function checkAuthAndNavigate() {
+      const navBar = document.querySelector('.bottom-nav');
+      if (!currentTeacher) {
+        showScreen('auth-screen');
+        if (navBar) navBar.style.display = 'none';
+      } else {
+        const nameDisplay = document.getElementById('teacher-name-display');
+        if (nameDisplay) nameDisplay.textContent = currentTeacher.name;
+        if (navBar) navBar.style.display = 'flex';
+        showScreen('home-screen');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // MATA PELAJARAN MANAGEMENT
+    // -------------------------------------------------------------
+    function renderSubjects() {
+      const container = document.getElementById('subject-settings-list');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      subjects.forEach((subj, idx) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50';
+        item.innerHTML = `
+          <span class="text-xs font-semibold truncate pr-2">${subj}</span>
+          <button type="button" class="text-rose-500 hover:text-rose-700 p-1" onclick="deleteSubject(${idx})">
+            <i data-lucide="trash-2" width="14"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+
+      if (window.lucide) lucide.createIcons();
+      localStorage.setItem('app_subjects', JSON.stringify(subjects));
+      syncSubjectDropdowns();
+    }
+
+    function addSubject() {
+      const input = document.getElementById('new-subject-input');
+      const val = input.value.trim();
+
+      if (!val) {
+        showToast('Nama mata pelajaran tidak boleh kosong');
+        return;
+      }
+      if (subjects.includes(val)) {
+        showToast('Mata pelajaran sudah ada');
+        return;
+      }
+
+      subjects.push(val);
+      input.value = '';
+      renderSubjects();
+      showToast('Mata pelajaran ditambahkan');
+    }
+
+    function deleteSubject(index) {
+      if (subjects.length <= 1) {
+        showToast('Minimal harus ada 1 mata pelajaran');
+        return;
+      }
+      subjects.splice(index, 1);
+      renderSubjects();
+      showToast('Mata pelajaran dihapus');
+    }
+
+    function syncSubjectDropdowns() {
+      const select = document.getElementById('lesson-topic');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '';
+      subjects.forEach(subj => {
+        const opt = document.createElement('option');
+        opt.value = subj;
+        opt.textContent = subj;
+        select.appendChild(opt);
+      });
+      if (subjects.includes(currentVal)) select.value = currentVal;
+    }
+
+    // -------------------------------------------------------------
+    // GOOGLE DRIVE & NOTIFICATIONS
+    // -------------------------------------------------------------
+    function toggleGoogleDrive() {
+      gdriveConnected = !gdriveConnected;
+      localStorage.setItem('gdrive_connected', gdriveConnected);
+      
+      const statusText = document.getElementById('gdrive-status-text');
+      const emailText = document.getElementById('gdrive-email-text');
+      const btn = document.getElementById('gdrive-btn');
+
+      if (gdriveConnected) {
+        statusText.textContent = 'Terhubung ke Google Drive';
+        emailText.textContent = 'Otomatis cadangkan PDF ke cloud';
+        btn.textContent = 'Putuskan';
+        showToast('Google Drive Terhubung!');
+      } else {
+        statusText.textContent = 'Belum Terhubung';
+        emailText.textContent = 'Tautkan akun Google untuk backup PDF';
+        btn.textContent = 'Koneksikan';
+        showToast('Google Drive Terputus');
+      }
+    }
+
+    function requestNotificationPermission() {
+      if (!('Notification' in window)) {
+        showToast('Perangkat tidak mendukung Push Notification');
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        updateNotifPermissionUI(permission);
+        if (permission === 'granted') showToast('Izin notifikasi aktif!');
+      });
+    }
+
+    function updateNotifPermissionUI(permission = Notification.permission) {
+      const statusEl = document.getElementById('notif-permission-status');
+      if (statusEl) {
+        statusEl.textContent = permission === 'granted' ? 'Izin Notifikasi Aktif ✓' : 'Aktifkan Izin Notifikasi HP';
+      }
+    }
+
+    function saveNotifSettings() {
+      showToast('Pengaturan notifikasi disimpan');
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      showToast('Tema berhasil diubah');
+    }
+
+    function saveJournal() {
+      showToast('Jurnal mengajar berhasil disimpan!');
+      showScreen('home-screen');
+    }
+
+    function adjustAttendance(type, delta) {
+      const el = document.getElementById(`${type}-count`);
+      if (el) {
+        let val = parseInt(el.textContent) || 0;
+        val = Math.max(0, val + delta);
+        el.textContent = val;
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Inisialisasi Aplikasi saat Load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      renderSubjects();
+      updateNotifPermissionUI();
+      checkAuthAndNavigate();
+      
+      // Update Jam Realtime
+      setInterval(() => {
+        const clock = document.getElementById('clock');
+        if (clock) {
+          const now = new Date();
+          clock.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+      }, 1000);
+    });
+  </script>
+ </body>
+</html>

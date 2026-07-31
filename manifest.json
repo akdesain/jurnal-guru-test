@@ -1,0 +1,21 @@
+{
+  "short_name": "Jurnal Guru",
+  "name": "Jurnal Mengajar Guru Digital",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#07172d",
+  "theme_color": "#1769d1",
+  "display": "standalone",
+  "orientation": "portrait"
+}
