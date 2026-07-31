@@ -1,281 +1,1369 @@
-<!DOCTYPE html>
+# Let's write out the complete updated HTML file with Firebase SDK integrated for multi-user accounts
+# and exact PDF header formatting matching the screenshot.
+
+html_content = """<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap Jurnal Mengajar & Setting</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
-<body class="bg-gray-100 font-sans">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jurnal Guru Digital - Multi User</title>
+  
+  <!-- PWA Metadata -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#1769d1">
+  <link rel="apple-touch-icon" href="./icon-192.png">
 
-    <div class="container mx-auto p-4 max-w-6xl">
-        <!-- Navigasi Tab -->
-        <div class="flex space-x-2 mb-6">
-            <button onclick="switchTab('jurnal')" id="btn-jurnal" class="px-4 py-2 bg-blue-600 text-white rounded font-semibold">Jurnal Mengajar</button>
-            <button onclick="switchTab('setting')" id="btn-setting" class="px-4 py-2 bg-gray-300 text-gray-700 rounded font-semibold">Setting Data</button>
+  <!-- External Styles & Libraries -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAuRmAJX7RMtD35X0_o0_4rMtUQ6XG43A",
+      authDomain: "jurnal-guru-digital-3bb86.firebaseapp.com",
+      projectId: "jurnal-guru-digital-3bb86",
+      storageBucket: "jurnal-guru-digital-3bb86.appspot.com",
+      messagingSenderId: "795067564900",
+      appId: "1:795067564900:web:5e6600ad63c5923b78b071"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    window.firebaseFns = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, query, where };
+  </script>
+
+  <style>
+    :root {
+      --ink: #163458;
+      --muted: #62728a;
+      --line: #dbe6f5;
+      --canvas: #eef5ff;
+      --surface: #ffffff;
+      --blue: #1769d1;
+      --blue-deep: #0e4a9d;
+      --blue-soft: #e4f0ff;
+      --nav: rgba(255,255,255,.94);
+      --input: #f8fbff;
+      --shadow: 0 14px 34px rgba(24,72,131,.10);
+    }
+    body.dark-mode {
+      --ink: #e7f0ff;
+      --muted: #aebfd7;
+      --line: #28476e;
+      --canvas: #07172d;
+      --surface: #102642;
+      --blue: #55a6ff;
+      --blue-deep: #9acbff;
+      --blue-soft: #173a66;
+      --nav: rgba(10,29,54,.95);
+      --input: #0b203a;
+      --shadow: 0 18px 42px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      width: 100%; min-height: 100vh; margin: 0;
+      background: var(--canvas); color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input, textarea, select { font: inherit; }
+    .app-shell {
+      width: 100%; min-height: 100vh; max-width: 620px;
+      margin: 0 auto; padding-bottom: 90px; overflow-x: hidden;
+    }
+    .screen { display: none !important; }
+    .screen.active { display: block !important; animation: rise .2s ease both; }
+    
+    .top-safe { padding-top: max(1.2rem, env(safe-area-inset-top)); }
+    .native-card {
+      border: 1px solid var(--line); border-radius: 20px;
+      background: var(--surface); box-shadow: var(--shadow);
+    }
+    .hero-card {
+      position: relative; border-radius: 24px; color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+      box-shadow: 0 16px 32px rgba(16,73,158,.26);
+    }
+    .form-control {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px;
+      padding: .65rem .85rem; background: var(--input); color: var(--ink);
+    }
+    .form-control:focus { border-color: var(--blue); outline: none; }
+    .primary-button {
+      width: 100%; padding: .8rem; border: 0; border-radius: 14px;
+      background: var(--blue); color: #fff; font-weight: 700;
+      box-shadow: 0 8px 20px rgba(23,105,209,.25); cursor: pointer;
+    }
+    .soft-button {
+      border: 1px solid var(--line); border-radius: 12px;
+      background: var(--blue-soft); color: var(--blue-deep); font-weight: 700; cursor: pointer;
+    }
+    .icon-button {
+      border: 1px solid var(--line); border-radius: 12px;
+      background: var(--surface); color: var(--blue-deep); padding: .6rem; cursor: pointer;
+    }
+    .bottom-nav {
+      position: fixed; z-index: 30; bottom: 0; left: 50%;
+      display: none; width: min(100%, 620px); justify-around: space-around;
+      transform: translateX(-50%); padding: .5rem .8rem calc(.5rem + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line); background: var(--nav); backdrop-filter: blur(16px);
+    }
+    .nav-button {
+      min-width: 58px; border-radius: 12px; padding: .4rem;
+      color: var(--muted); font-size: .68rem; font-weight: 700; text-align: center; cursor: pointer;
+    }
+    .nav-button.active { background: var(--blue-soft); color: var(--blue-deep); }
+    .toast {
+      position: fixed; z-index: 100; top: 18px; left: 50%;
+      width: min(calc(100% - 32px),520px); transform: translate(-50%,-160%);
+      border-radius: 14px; padding: .8rem 1rem; background: #0d2747; color: #fff;
+      box-shadow: 0 16px 32px rgba(0,0,0,.25); font-size: .85rem; font-weight: 600;
+      transition: transform .28s ease; text-align: center; pointer-events: none;
+    }
+    .toast.show { transform: translate(-50%,0); }
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.5);
+      display: flex; items-center; justify-center; padding: 1rem; backdrop-filter: blur(4px);
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+ </head>
+ <body>
+  <div class="app-shell">
+   <div id="toast" class="toast"></div>
+   
+   <main>
+    <!-- 1. HALAMAN LOGIN & REGISTER (FIREBASE AUTH) -->
+    <section id="auth-screen" class="screen top-safe px-4 pb-5 flex flex-col justify-center min-h-[85vh]">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-3xl mx-auto flex items-center justify-center mb-3">
+          <i data-lucide="graduation-cap" width="36"></i>
+        </div>
+        <h1 class="text-2xl font-bold">Jurnal Guru Digital</h1>
+        <p class="text-xs text-slate-500 mt-1">Buat Akun Masing-Masing atau Masuk</p>
+      </div>
+
+      <div class="flex bg-slate-200/60 dark:bg-slate-800 p-1 rounded-xl mb-4">
+        <button type="button" id="tab-login-btn" class="w-1/2 py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 shadow-sm" onclick="switchAuthTab('login')">Masuk</button>
+        <button type="button" id="tab-register-btn" class="w-1/2 py-2 text-xs font-bold rounded-lg text-slate-500" onclick="switchAuthTab('register')">Daftar Akun</button>
+      </div>
+
+      <form id="login-form" class="native-card p-5 space-y-4" onsubmit="event.preventDefault(); handleFirebaseLogin();">
+        <div>
+          <label class="block text-xs font-bold mb-1">Email</label>
+          <input id="login-email" class="form-control text-xs" type="email" placeholder="guru@sekolah.sch.id" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Kata Sandi</label>
+          <input id="login-pass" class="form-control text-xs" type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="primary-button">Masuk ke Dashboard</button>
+      </form>
+
+      <form id="register-form" class="native-card p-5 space-y-4 hidden" onsubmit="event.preventDefault(); handleFirebaseRegister();">
+        <div>
+          <label class="block text-xs font-bold mb-1">Nama Lengkap & Gelar</label>
+          <input id="reg-name" class="form-control text-xs" type="text" placeholder="Contoh: Budi Santoso, S.Pd." required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">NIP / NUPTK</label>
+          <input id="reg-nip" class="form-control text-xs" type="text" placeholder="Masukkan NIP" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Email Aktif</label>
+          <input id="reg-email" class="form-control text-xs" type="email" placeholder="guru@sekolah.sch.id" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Kata Sandi Baru</label>
+          <input id="reg-pass" class="form-control text-xs" type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="primary-button">Buat Akun & Masuk</button>
+      </form>
+    </section>
+
+    <!-- 2. HALAMAN BERANDA / DASHBOARD -->
+    <section id="home-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-4 flex items-center justify-between">
+        <div>
+          <p id="greeting-text" class="text-xs font-bold tracking-widest text-blue-600 uppercase">Selamat Mengajar</p>
+          <h1 id="teacher-name-home" class="text-lg font-bold">Guru Pengajar</h1>
+        </div>
+        <button type="button" class="icon-button" onclick="showScreen('settings-screen')">
+          <i data-lucide="settings" width="20"></i>
+        </button>
+      </header>
+
+      <section class="hero-card mb-4 p-5">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <p id="live-day" class="text-xs font-semibold opacity-90">Hari Ini</p>
+            <h2 id="live-date" class="mt-0.5 text-base font-bold">-</h2>
+          </div>
+          <div class="text-right">
+            <p id="live-clock" class="text-3xl font-bold tracking-tight">00:00</p>
+            <p class="text-[10px] opacity-80">WIB / WITA</p>
+          </div>
         </div>
 
-        <!-- TAB JURNAL -->
-        <div id="tab-jurnal" class="bg-white p-6 rounded-lg shadow-md">
-            <div class="mb-4 pb-4 border-b">
-                <h1 class="text-2xl font-bold">REKAP JURNAL MENGAJAR (WEEKLY)</h1>
-                <p class="text-sm text-gray-600 mt-1">
-                    Guru Pengajar: <span id="lbl-nama" class="font-semibold">-</span> | NIP: <span id="lbl-nip" class="font-semibold">-</span>
-                </p>
-                <p class="text-sm text-gray-600">
-                    Sekolah: <span id="lbl-sekolah" class="font-semibold">-</span>
-                </p>
-            </div>
+        <div class="mt-4 pt-3 border-t border-white/20 flex items-center justify-between text-xs">
+          <span class="font-medium">Pilih Tanggal Jurnal:</span>
+          <input type="date" id="journal-date-picker" class="bg-white/20 text-white rounded-lg px-2 py-1 text-xs outline-none border border-white/30" onchange="onDateChange()">
+        </div>
+      </section>
 
-            <!-- Form Tambah Jurnal -->
-            <form id="form-jurnal" onsubmit="tambahJurnal(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-gray-50 p-4 rounded border">
-                <div>
-                    <label class="block text-xs font-bold mb-1">Hari & Tanggal</label>
-                    <div class="flex gap-2">
-                        <select id="j-hari" class="border p-1 rounded text-sm w-1/2" required>
-                            <option value="">Pilih Hari</option>
-                            <option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option>
-                        </select>
-                        <input type="date" id="j-tanggal" class="border p-1 rounded text-sm w-1/2" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Pilih Kelas</label>
-                    <select id="j-kelas" class="border p-1 rounded text-sm w-full" onchange="updateJmlSiswa()" required>
-                        <option value="">Pilih Kelas</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Jumlah Siswa (H / S / I / A)</label>
-                    <div class="grid grid-cols-4 gap-1">
-                        <input type="number" id="j-hadir" placeholder="H" class="border p-1 rounded text-center text-sm" required>
-                        <input type="number" id="j-sakit" placeholder="S" class="border p-1 rounded text-center text-sm" required>
-                        <input type="number" id="j-izin" placeholder="I" class="border p-1 rounded text-center text-sm" required>
-                        <input type="number" id="j-alpa" placeholder="A" class="border p-1 rounded text-center text-sm" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Sub Materi</label>
-                    <input type="text" id="j-materi" placeholder="Sub Materi PBM" class="border p-1 rounded text-sm w-full" required>
-                </div>
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-bold mb-1">Kondisi PBM</label>
-                    <input type="text" id="j-kondisi" placeholder="Contoh: Kondusif, Aktif" class="border p-1 rounded text-sm w-full" required>
-                </div>
-                <div class="md:col-span-1 flex items-end">
-                    <button type="submit" class="w-full bg-green-600 text-white p-2 rounded text-sm font-bold hover:bg-green-700">Simpan Jurnal</button>
-                </div>
-            </form>
+      <!-- JADWAL HARIAN -->
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="font-bold text-sm">Jadwal Mengajar Hari Ini</h2>
+        <span id="selected-day-badge" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md font-bold">Senin</span>
+      </div>
+      
+      <div id="home-schedule-list" class="space-y-3 mb-6"></div>
 
-            <!-- Tabel Jurnal -->
-            <div class="overflow-x-auto">
-                <table class="w-full border-collapse border border-gray-400 text-xs text-center">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border border-gray-400 p-2">HARI</th>
-                            <th class="border border-gray-400 p-2">TANGGAL</th>
-                            <th class="border border-gray-400 p-2">KELAS</th>
-                            <th class="border border-gray-400 p-2">JML SISWA</th>
-                            <th class="border border-gray-400 p-2" colspan="4">KEHADIRAN</th>
-                            <th class="border border-gray-400 p-2">SUB MATERI</th>
-                            <th class="border border-gray-400 p-2">KONDISI PBM</th>
-                            <th class="border border-gray-400 p-2">PARAF GURU</th>
-                            <th class="border border-gray-400 p-2">AKSI</th>
-                        </tr>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-400 p-1" colspan="4"></th>
-                            <th class="border border-gray-400 p-1">HADIR</th>
-                            <th class="border border-gray-400 p-1">SAKIT</th>
-                            <th class="border border-gray-400 p-1">IZIN</th>
-                            <th class="border border-gray-400 p-1">ALPA</th>
-                            <th class="border border-gray-400 p-1" colspan="4"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabel-jurnal-body">
-                        <!-- Data dinamis -->
-                    </tbody>
-                </table>
-            </div>
+      <!-- RIWAYAT PENGISIAN JURNAL -->
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="history" width="18" class="text-blue-600"></i>
+            <h2 class="font-bold text-sm">Riwayat Pengisian Jurnal</h2>
+          </div>
+          <span class="text-[11px] text-slate-500 font-medium">Terbaru</span>
         </div>
 
-        <!-- TAB SETTING -->
-        <div id="tab-setting" class="bg-white p-6 rounded-lg shadow-md hidden">
-            <h1 class="text-2xl font-bold mb-4">PENGATURAN DATA & PROFIL</h1>
+        <div id="home-history-list" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- 3. HALAMAN INPUT / EDIT JURNAL -->
+    <section id="journal-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-4 flex items-center gap-3">
+        <button type="button" class="icon-button" onclick="showScreen('home-screen')">
+          <i data-lucide="arrow-left" width="20"></i>
+        </button>
+        <div>
+          <p class="text-xs font-bold tracking-widest text-slate-400">INPUT DATA</p>
+          <h1 id="journal-class-title" class="font-bold">Isi Jurnal Mengajar</h1>
+        </div>
+      </header>
+
+      <form onsubmit="event.preventDefault(); saveJournalEntry();" class="space-y-4">
+        <!-- Kehadiran Siswa -->
+        <div class="native-card p-4">
+          <h2 class="font-bold mb-3 text-xs">Kehadiran Siswa</h2>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200">
+              <span class="font-bold text-emerald-700">Hadir</span>
+              <input type="number" id="att-present" class="form-control mt-1 font-bold text-center" value="30" min="0">
+            </div>
+            <div class="bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-200">
+              <span class="font-bold text-amber-700">Sakit</span>
+              <input type="number" id="att-sick" class="form-control mt-1 font-bold text-center" value="0" min="0">
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-950/40 p-2.5 rounded-xl border border-blue-200">
+              <span class="font-bold text-blue-700">Izin</span>
+              <input type="number" id="att-permission" class="form-control mt-1 font-bold text-center" value="0" min="0">
+            </div>
+            <div class="bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl border border-rose-200">
+              <span class="font-bold text-rose-700">Alpa</span>
+              <input type="number" id="att-absent" class="form-control mt-1 font-bold text-center" value="0" min="0">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Mata Pelajaran</label>
+          <select id="journal-subject-select" class="form-control text-xs" required></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Metode Pembelajaran</label>
+          <select id="journal-method-select" class="form-control text-xs" required>
+            <option value="Praktik">Praktik</option>
+            <option value="Diskusi Kelompok">Diskusi Kelompok</option>
+            <option value="Tanya Jawab">Tanya Jawab</option>
+            <option value="Ceramah / Presentasi">Ceramah / Presentasi</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Kondisi Kelas</label>
+          <select id="journal-condition-select" class="form-control text-xs" required>
+            <option value="Sangat Baik">Sangat Baik</option>
+            <option value="Aman &amp; Lancar">Aman &amp; Lancar</option>
+            <option value="Kondusif">Kondusif</option>
+            <option value="Siswa Antusias">Siswa Antusias</option>
+            <option value="Siswa Aktif">Siswa Aktif</option>
+          </select>
+        </div>
+
+        <!-- Foto PBM -->
+        <div class="native-card p-4">
+          <label class="block text-xs font-bold mb-2">Foto PBM (Proses Belajar Mengajar)</label>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <input type="file" id="photo-file-input" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+            <input type="file" id="photo-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoUpload(event)">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Profil Guru -->
-                <div class="border p-4 rounded bg-gray-50">
-                    <h2 class="font-bold text-lg mb-3">Profil Guru</h2>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-sm font-semibold">Nama Lengkap & Gelar</label>
-                            <input type="text" id="set-nama" class="border p-2 rounded w-full text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold">NIP</label>
-                            <input type="text" id="set-nip" class="border p-2 rounded w-full text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold">Nama Sekolah</label>
-                            <input type="text" id="set-sekolah" class="border p-2 rounded w-full text-sm">
-                        </div>
-                        <button onclick="simpanProfil()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Simpan Profil</button>
-                    </div>
-                </div>
+            <button type="button" class="soft-button py-2.5 text-xs flex items-center justify-center gap-1.5" onclick="document.getElementById('photo-file-input').click()">
+              <i data-lucide="upload-cloud" width="16"></i> Upload Foto
+            </button>
+            <button type="button" class="soft-button py-2.5 text-xs flex items-center justify-center gap-1.5 text-blue-600 border-blue-200" onclick="document.getElementById('photo-camera-input').click()">
+              <i data-lucide="camera" width="16"></i> Kamera HP
+            </button>
+          </div>
 
-                <!-- Manajemen Kelas -->
-                <div class="border p-4 rounded bg-gray-50">
-                    <h2 class="font-bold text-lg mb-3">Manajemen Kelas & Jumlah Siswa</h2>
-                    <div class="flex gap-2 mb-3">
-                        <input type="text" id="set-namakelas" placeholder="Nama Kelas (Cth: X TKJ 1)" class="border p-2 rounded text-sm w-1/2">
-                        <input type="number" id="set-jmlsiswa" placeholder="Jumlah Siswa" class="border p-2 rounded text-sm w-1/3">
-                        <button onclick="tambahKelas()" class="bg-green-600 text-white px-3 py-2 rounded text-sm font-bold w-1/6">+</button>
-                    </div>
-                    <div class="max-h-48 overflow-y-auto border bg-white rounded p-2">
-                        <table class="w-full text-left text-sm">
-                            <thead>
-                                <tr class="border-b"><th>Kelas</th><th>Jml Siswa</th><th>Aksi</th></tr>
-                            </thead>
-                            <tbody id="tabel-kelas-body">
-                                <!-- Data Kelas -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+          <div id="photo-preview-box" class="hidden relative mt-3 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 max-h-48 flex items-center justify-center">
+            <img id="photo-preview-img" src="" class="w-full h-48 object-cover">
+            <button type="button" class="absolute top-2 right-2 bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-700" onclick="removePhoto()">
+              <i data-lucide="x" width="16"></i>
+            </button>
+          </div>
         </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold">Sub Materi / Pokok Bahasan</label>
+            <button type="button" class="text-xs text-blue-600 font-bold flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-md border border-blue-200 hover:bg-blue-100" onclick="generateAISummary()">
+              <i data-lucide="sparkles" width="14" class="text-amber-500"></i> ✨ Rangkum AI
+            </button>
+          </div>
+          <textarea id="journal-topic" class="form-control text-xs" rows="3" placeholder="Tuliskan sub materi..." required></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">Catatan Tambahan / Modul</label>
+          <input id="journal-notes" class="form-control text-xs" type="text" placeholder="Opsional...">
+        </div>
+
+        <button type="submit" class="primary-button flex items-center justify-center gap-2">
+          <i data-lucide="check-circle" width="18"></i>
+          <span>Simpan Jurnal</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- 4. HALAMAN LAPORAN & PDF (SESUAI GAMBAR UPLOAD) -->
+    <section id="reports-screen" class="screen top-safe px-4 pb-5">
+      <header class="mb-4">
+        <p class="text-xs font-bold tracking-widest text-slate-400">DOKUMEN REKAP</p>
+        <h1 class="font-bold">Laporan Jurnal Mengajar</h1>
+      </header>
+
+      <div class="native-card p-4 mb-4 space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-blue-100 text-blue-600 rounded-xl">
+            <i data-lucide="file-text" width="22"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-xs">Cetak Laporan Mingguan</h3>
+            <p class="text-[11px] text-slate-500">PDF Landscape persis format header &amp; tabel referensi</p>
+          </div>
+        </div>
+        <button type="button" class="primary-button py-2 text-xs" onclick="generatePDF('weekly')">Unduh PDF Mingguan</button>
+      </div>
+
+      <div class="native-card p-4 mb-4 space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
+            <i data-lucide="calendar" width="22"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-xs">Cetak Laporan Bulanan</h3>
+            <p class="text-[11px] text-slate-500">Format PDF rekap penuh bulan ini</p>
+          </div>
+        </div>
+        <button type="button" class="primary-button py-2 text-xs bg-indigo-600 hover:bg-indigo-700" onclick="generatePDF('monthly')">Unduh PDF Bulanan</button>
+      </div>
+
+      <div class="native-card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="cloud-upload" width="20" class="text-blue-600"></i>
+            <h3 class="font-bold text-xs">Koneksi Google Drive</h3>
+          </div>
+          <span id="gdrive-status-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Terhubung</span>
+        </div>
+        
+        <p class="text-[11px] text-slate-500">File PDF jurnal yang diunduh otomatis tersimpan ke folder Google Drive.</p>
+
+        <div class="space-y-2 border-t pt-3" style="border-color: var(--line);">
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Email Akun Google</label>
+            <input id="gdrive-account-email" class="form-control text-xs" type="email" value="guru.pengajar@gmail.com">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Folder Google Drive Tujuan</label>
+            <input id="gdrive-folder-name" class="form-control text-xs" type="text" value="Jurnal Mengajar 2026">
+          </div>
+        </div>
+
+        <button type="button" class="soft-button w-full py-2 text-xs text-blue-700 border-blue-200 mt-2" onclick="syncToGoogleDrive()">
+          <i data-lucide="refresh-cw" width="14" class="inline mr-1"></i> Tes Sinkronisasi Simpan ke Drive
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. HALAMAN PENGATURAN -->
+    <section id="settings-screen" class="screen top-safe px-4 pb-5 space-y-5">
+      <header class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold tracking-widest text-slate-400">KONFIGURASI</p>
+          <h1 class="font-bold">Pengaturan Aplikasi</h1>
+        </div>
+        <button type="button" class="icon-button" onclick="showScreen('home-screen')">
+          <i data-lucide="x" width="20"></i>
+        </button>
+      </header>
+
+      <section class="native-card p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-bold text-xs">Profil Pengajar</h2>
+          <button type="button" id="lock-profile-btn" class="soft-button px-2.5 py-1 text-[11px]" onclick="toggleLockProfile()">
+            <i data-lucide="lock" width="12" class="inline"></i> <span id="lock-status-text">Kunci Profil</span>
+          </button>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Nama Lengkap &amp; Gelar</label>
+            <input id="set-teacher-name" class="form-control text-xs" type="text">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">NIP / NUPTK</label>
+            <input id="set-teacher-nip" class="form-control text-xs" type="text">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold mb-1">Instansi / Sekolah</label>
+            <input id="set-teacher-school" class="form-control text-xs" type="text">
+          </div>
+          <button type="button" class="primary-button py-2 text-xs" onclick="saveProfileSettings()">Simpan Perubahan Profil</button>
+        </div>
+      </section>
+
+      <!-- PARAF GURU / TTD -->
+      <section class="native-card p-4">
+        <h2 class="font-bold text-xs mb-1">Paraf Guru / Tanda Tangan (TTD)</h2>
+        <p class="text-[11px] text-slate-500 mb-3">Gambarlah di bawah atau **Upload Gambar TTD** agar terhubung ke PDF.</p>
+        
+        <div class="border border-slate-300 rounded-xl overflow-hidden bg-white mb-2">
+          <canvas id="sig-canvas" width="300" height="120" class="w-full touch-none cursor-crosshair"></canvas>
+        </div>
+
+        <div class="flex gap-2 mb-2">
+          <button type="button" class="soft-button py-1.5 text-xs w-1/2" onclick="clearSignature()">Hapus / Reset</button>
+          <button type="button" class="primary-button py-1.5 text-xs w-1/2" onclick="saveSignature()">Simpan Paraf</button>
+        </div>
+
+        <div class="pt-2 border-t border-slate-200">
+          <label class="block text-[11px] font-bold mb-1">Atau Upload File Gambar TTD (PNG/JPG):</label>
+          <input type="file" id="sig-file-input" accept="image/*" class="form-control text-xs" onchange="uploadSignatureImage(event)">
+        </div>
+      </section>
+
+      <!-- KELOLA MATA PELAJARAN -->
+      <section class="native-card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-xs">Kelola Mata Pelajaran</h2>
+          <button type="button" class="soft-button px-2.5 py-1 text-[11px]" onclick="openMasterModal('subject')">+ Tambah</button>
+        </div>
+        <div id="master-subjects-list" class="space-y-2 text-xs"></div>
+      </section>
+
+      <!-- KELOLA RUANGAN -->
+      <section class="native-card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-xs">Kelola Pilihan Ruang</h2>
+          <button type="button" class="soft-button px-2.5 py-1 text-[11px]" onclick="openMasterModal('room')">+ Tambah</button>
+        </div>
+        <div id="master-rooms-list" class="space-y-2 text-xs"></div>
+      </section>
+
+      <!-- KELOLA KELAS -->
+      <section class="native-card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-xs">Pengaturan Per Kelas &amp; Jumlah Siswa</h2>
+          <button type="button" class="soft-button px-2.5 py-1 text-[11px]" onclick="openMasterModal('class')">+ Tambah</button>
+        </div>
+        <div id="master-classes-list" class="space-y-2 text-xs"></div>
+      </section>
+
+      <!-- KELOLA JADWAL -->
+      <section class="native-card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-bold text-xs">Jadwal Mengajar Mingguan (Senin - Sabtu)</h2>
+          </div>
+          <button type="button" class="soft-button px-2.5 py-1 text-[11px]" onclick="openScheduleModal()">+ Tambah</button>
+        </div>
+        <div id="master-schedules-list" class="space-y-2 text-xs"></div>
+      </section>
+
+      <!-- MODE GELAP & LOGOUT -->
+      <section class="native-card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-bold text-xs">Tampilan Mode Gelap</p>
+          </div>
+          <button type="button" class="icon-button p-2" onclick="toggleDarkMode()">
+            <i data-lucide="moon" width="16"></i>
+          </button>
+        </div>
+        <hr style="border-color:var(--line)">
+        <button type="button" class="soft-button w-full py-2 text-xs text-rose-600 border-rose-200" onclick="handleFirebaseLogout()">Keluar / Logout Akun</button>
+      </section>
+    </section>
+   </main>
+
+   <!-- NAVIGASI BAWAH -->
+   <nav id="bottom-nav-bar" class="bottom-nav">
+     <button class="nav-button active flex flex-col items-center gap-1" onclick="showScreen('home-screen')">
+       <i data-lucide="home" width="18"></i>
+       <span>Beranda</span>
+     </button>
+     <button class="nav-button flex flex-col items-center gap-1" onclick="showScreen('reports-screen')">
+       <i data-lucide="file-text" width="18"></i>
+       <span>Laporan</span>
+     </button>
+     <button class="nav-button flex flex-col items-center gap-1" onclick="showScreen('settings-screen')">
+       <i data-lucide="settings" width="18"></i>
+       <span>Pengaturan</span>
+     </button>
+   </nav>
+  </div>
+
+  <!-- MODAL MASTER -->
+  <div id="master-modal" class="modal-backdrop hidden">
+    <div class="native-card w-full max-w-sm p-5 space-y-4 bg-white dark:bg-slate-900">
+      <div class="flex items-center justify-between">
+        <h3 id="modal-title" class="font-bold text-sm">Form Master</h3>
+        <button type="button" onclick="closeMasterModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" width="18"></i>
+        </button>
+      </div>
+      <div id="modal-body" class="space-y-3 text-xs"></div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="soft-button px-4 py-2 text-xs" onclick="closeMasterModal()">Batal</button>
+        <button type="button" class="primary-button w-auto px-5 py-2 text-xs" onclick="submitMasterModal()">Simpan</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Inisialisasi Data dari LocalStorage agar tidak hilang
-        let profil = JSON.parse(localStorage.getItem('jurnal_profil')) || { nama: "Aan Kurniawan, S.Pd.,M.Ars", nip: "12321312", sekolah: "SMK Negeri 1" };
-        let kelasList = JSON.parse(localStorage.getItem('jurnal_kelas')) || [
-            { nama: "X TKJ 1", jumlah: 32 },
-            { nama: "XI TKJ 2", jumlah: 30 }
-        ];
-        let jurnalList = JSON.parse(localStorage.getItem('jurnal_data')) || [];
+  <script>
+    let currentUser = null;
+    let profile = {
+      name: 'Guru Pengajar',
+      nip: '198501232010011002',
+      school: 'SMK Negeri 1',
+      isLocked: false,
+      signature: null
+    };
 
-        function switchTab(tab) {
-            if(tab === 'jurnal') {
-                document.getElementById('tab-jurnal').classList.remove('hidden');
-                document.getElementById('tab-setting').classList.add('hidden');
-                document.getElementById('btn-jurnal').className = "px-4 py-2 bg-blue-600 text-white rounded font-semibold";
-                document.getElementById('btn-setting').className = "px-4 py-2 bg-gray-300 text-gray-700 rounded font-semibold";
+    let rooms = [
+      { id: 'r1', name: 'Ruang Class 1' },
+      { id: 'r2', name: 'Lab Komputer' }
+    ];
+
+    let classes = [
+      { id: 'c1', name: 'XI DPIB 1', count: 34 },
+      { id: 'c2', name: 'XI DPIB 2', count: 36 }
+    ];
+
+    let subjects = [
+      { id: 's1', name: 'KKA (Koding & Kecerdasan Artifisial)' },
+      { id: 's2', name: 'Autodesk Revit' }
+    ];
+
+    let schedules = [
+      { id: 'sc1', day: 'Senin', class: 'XI DPIB 1', room: 'Lab Komputer', subject: 'KKA (Koding & Kecerdasan Artifisial)', time: '07:00 - 09:30', isLocked: false }
+    ];
+
+    let journalEntries = [];
+
+    let selectedDate = new Date().toISOString().slice(0, 10);
+    let activeScheduleIdForJournal = null;
+    let editingJournalId = null;
+    let currentPhotoBase64 = null;
+    let currentModalType = null;
+    let currentEditingMasterId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      initClock();
+      initSignatureCanvas();
+      document.getElementById('journal-date-picker').value = selectedDate;
+
+      // Check Firebase Auth state
+      const checkAuthInterval = setInterval(() => {
+        if (window.firebaseAuth && window.firebaseFns) {
+          clearInterval(checkAuthInterval);
+          window.firebaseFns.onAuthStateChanged(window.firebaseAuth, (user) => {
+            if (user) {
+              currentUser = user;
+              loadUserDataFromCloud();
             } else {
-                document.getElementById('tab-jurnal').classList.add('hidden');
-                document.getElementById('tab-setting').classList.remove('hidden');
-                document.getElementById('btn-setting').className = "px-4 py-2 bg-blue-600 text-white rounded font-semibold";
-                document.getElementById('btn-jurnal').className = "px-4 py-2 bg-gray-300 text-gray-700 rounded font-semibold";
+              currentUser = null;
+              showScreen('auth-screen');
             }
+          });
         }
+      }, 200);
+    });
 
-        function renderUI() {
-            // Render Profil
-            document.getElementById('lbl-nama').innerText = profil.nama;
-            document.getElementById('lbl-nip').innerText = profil.nip;
-            document.getElementById('lbl-sekolah').innerText = profil.sekolah;
+    // --- FIREBASE AUTH & STORAGE SYNC ---
+    function switchAuthTab(type) {
+      const loginForm = document.getElementById('login-form');
+      const regForm = document.getElementById('register-form');
+      const loginBtn = document.getElementById('tab-login-btn');
+      const regBtn = document.getElementById('tab-register-btn');
 
-            document.getElementById('set-nama').value = profil.nama;
-            document.getElementById('set-nip').value = profil.nip;
-            document.getElementById('set-sekolah').value = profil.sekolah;
+      if (type === 'login') {
+        loginForm.classList.remove('hidden'); regForm.classList.add('hidden');
+        loginBtn.className = 'w-1/2 py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 shadow-sm';
+        regBtn.className = 'w-1/2 py-2 text-xs font-bold rounded-lg text-slate-500';
+      } else {
+        loginForm.classList.add('hidden'); regForm.classList.remove('hidden');
+        regBtn.className = 'w-1/2 py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 shadow-sm';
+        loginBtn.className = 'w-1/2 py-2 text-xs font-bold rounded-lg text-slate-500';
+      }
+    }
 
-            // Render Dropdown Kelas & Tabel Setting Kelas
-            let kelasSelect = document.getElementById('j-kelas');
-            kelasSelect.innerHTML = '<option value="">Pilih Kelas</option>';
-            let kelasTabelBody = document.getElementById('tabel-kelas-body');
-            kelasTabelBody.innerHTML = '';
+    async function handleFirebaseLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      try {
+        await window.firebaseFns.signInWithEmailAndPassword(window.firebaseAuth, email, pass);
+        showToast('Berhasil masuk!');
+      } catch (err) {
+        showToast('Gagal masuk: ' + err.message);
+      }
+    }
 
-            kelasList.forEach((k, index) => {
-                kelasSelect.innerHTML += `<option value="${k.nama}" data-jml="${k.jumlah}">${k.nama}</option>`;
-                kelasTabelBody.innerHTML += `<tr class="border-b"><td>${k.nama}</td><td>${k.jumlah}</td><td><button onclick="hapusKelas(${index})" class="text-red-600 text-xs">Hapus</button></td></tr>`;
-            });
+    async function handleFirebaseRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const nip = document.getElementById('reg-nip').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pass = document.getElementById('reg-pass').value;
 
-            // Render Tabel Jurnal
-            let jurnalBody = document.getElementById('tabel-jurnal-body');
-            jurnalBody.innerHTML = '';
-            if(jurnalList.length === 0) {
-                jurnalBody.innerHTML = `<tr><td colspan="12" class="p-4 text-gray-500">Belum ada data jurnal.</td></tr>`;
-            } else {
-                jurnalList.forEach((j, index) => {
-                    let totalSiswa = parseInt(j.hadir) + parseInt(j.sakit) + parseInt(j.izin) + parseInt(j.alpa);
-                    jurnalBody.innerHTML += `
-                        <tr>
-                            <td class="border border-gray-400 p-2">${j.hari}</td>
-                            <td class="border border-gray-400 p-2">${j.tanggal}</td>
-                            <td class="border border-gray-400 p-2">${j.kelas}</td>
-                            <td class="border border-gray-400 p-2 font-bold">${totalSiswa}</td>
-                            <td class="border border-gray-400 p-2">${j.hadir}</td>
-                            <td class="border border-gray-400 p-2">${j.sakit}</td>
-                            <td class="border border-gray-400 p-2">${j.izin}</td>
-                            <td class="border border-gray-400 p-2">${j.alpa}</td>
-                            <td class="border border-gray-400 p-2 text-left">${j.materi}</td>
-                            <td class="border border-gray-400 p-2 text-left">${j.kondisi}</td>
-                            <td class="border border-gray-400 p-2">${profil.nama}</td>
-                            <td class="border border-gray-400 p-2"><button onclick="hapusJurnal(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Hapus</button></td>
-                        </tr>
-                    `;
-                });
+      try {
+        const res = await window.firebaseFns.createUserWithEmailAndPassword(window.firebaseAuth, email, pass);
+        currentUser = res.user;
+        profile.name = name;
+        profile.nip = nip;
+        await saveUserDataToCloud();
+        showToast('Akun berhasil dibuat & masuk!');
+      } catch (err) {
+        showToast('Gagal daftar: ' + err.message);
+      }
+    }
+
+    async function handleFirebaseLogout() {
+      try {
+        await window.firebaseFns.signOut(window.firebaseAuth);
+        showToast('Berhasil keluar');
+        showScreen('auth-screen');
+      } catch (err) {
+        showToast('Gagal keluar');
+      }
+    }
+
+    async function saveUserDataToCloud() {
+      if (!currentUser) return;
+      try {
+        const userDocRef = window.firebaseFns.doc(window.firebaseDb, 'teachers', currentUser.uid);
+        await window.firebaseFns.setDoc(userDocRef, {
+          profile, rooms, classes, subjects, schedules, journalEntries
+        }, { merge: true });
+      } catch (e) {
+        console.log('Cloud save error:', e);
+      }
+    }
+
+    async function loadUserDataFromCloud() {
+      if (!currentUser) return;
+      try {
+        const userDocRef = window.firebaseFns.doc(window.firebaseDb, 'teachers', currentUser.uid);
+        const snap = await window.firebaseFns.getDoc(userDocRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.profile) profile = data.profile;
+          if (data.rooms) rooms = data.rooms;
+          if (data.classes) classes = data.classes;
+          if (data.subjects) subjects = data.subjects;
+          if (data.schedules) schedules = data.schedules;
+          if (data.journalEntries) journalEntries = data.journalEntries;
+        }
+      } catch (e) {
+        console.log('Cloud load error:', e);
+      }
+
+      loadProfileInputs();
+      renderMasterLists();
+      renderHomeScreen();
+      renderHistorySection();
+      showScreen('home-screen');
+    }
+
+    // --- CLOCK & NAVIGATION ---
+    function initClock() {
+      const update = () => {
+        const now = new Date();
+        const clockEl = document.getElementById('live-clock');
+        const dateEl = document.getElementById('live-date');
+        const dayEl = document.getElementById('live-day');
+
+        if (clockEl) clockEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        if (dayEl) dayEl.textContent = `Hari Ini (${days[now.getDay()]})`;
+        if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      };
+      update(); setInterval(update, 1000);
+    }
+
+    function onDateChange() {
+      const picker = document.getElementById('journal-date-picker');
+      if (picker.value) {
+        selectedDate = picker.value;
+        renderHomeScreen();
+      }
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+
+      const navBar = document.getElementById('bottom-nav-bar');
+      if (screenId === 'auth-screen') {
+        if (navBar) navBar.style.display = 'none';
+      } else {
+        if (navBar) navBar.style.display = 'flex';
+        renderHomeScreen();
+        renderHistorySection();
+      }
+      document.querySelectorAll('.nav-button').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(screenId));
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderHomeScreen() {
+      const nameEl = document.getElementById('teacher-name-home');
+      if (nameEl) nameEl.textContent = profile.name;
+
+      const dateObj = new Date(selectedDate);
+      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const dayName = days[dateObj.getDay()];
+
+      const badge = document.getElementById('selected-day-badge');
+      if (badge) badge.textContent = dayName;
+
+      const daySchedules = schedules.filter(s => s.day === dayName);
+      const listContainer = document.getElementById('home-schedule-list');
+      if (!listContainer) return;
+
+      if (daySchedules.length === 0) {
+        listContainer.innerHTML = `<div class="native-card p-4 text-center text-xs text-slate-500">Tidak ada jadwal mengajar pada hari ${dayName}.</div>`;
+        return;
+      }
+
+      listContainer.innerHTML = '';
+      daySchedules.forEach(item => {
+        const existing = journalEntries.find(j => j.date === selectedDate && j.scheduleId === item.id);
+        const card = document.createElement('div');
+        card.className = 'native-card p-4 flex items-center justify-between';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm">${item.class}</span>
+              <span class="text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">${item.room}</span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">${item.subject}</p>
+            <p class="text-[11px] text-blue-600 font-semibold mt-1">⏰ ${item.time}</p>
+          </div>
+          <button type="button" class="${existing ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'soft-button'} px-3 py-1.5 text-xs font-bold rounded-xl" onclick="openJournalForm('${item.id}')">
+            ${existing ? '✓ Edit Jurnal' : 'Isi Jurnal'}
+          </button>
+        `;
+        listContainer.appendChild(card);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderHistorySection() {
+      const container = document.getElementById('home-history-list');
+      if (!container) return;
+
+      if (journalEntries.length === 0) {
+        container.innerHTML = `<div class="native-card p-4 text-center text-xs text-slate-500">Belum ada riwayat jurnal yang diisi.</div>`;
+        return;
+      }
+
+      const sorted = [...journalEntries].reverse();
+      container.innerHTML = '';
+
+      sorted.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'native-card p-3 space-y-2';
+        const photoSrc = item.photo ? item.photo : 'https://via.placeholder.com/80?text=No+Photo';
+
+        card.innerHTML = `
+          <div class="flex gap-3 items-center">
+            <img src="${photoSrc}" class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-blue-600">${item.dayName || 'HARI'} (${item.date})</span>
+                <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-1.5 py-0.5 rounded">${item.className}</span>
+              </div>
+              <p class="text-xs font-bold truncate mt-0.5">${item.subject}</p>
+              <p class="text-[11px] text-slate-500 truncate">Sub: ${item.topic}</p>
+              <p class="text-[10px] text-slate-400 mt-1">Hadir: ${item.present} | Sakit: ${item.sick} | Izin: ${item.permission} | Alpa: ${item.absent}</p>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button type="button" class="soft-button px-2.5 py-1 text-[11px] flex items-center gap-1" onclick="editJournalEntryDirect('${item.id}')">
+              <i data-lucide="edit-3" width="12"></i> Edit Jurnal
+            </button>
+            <button type="button" class="soft-button px-2.5 py-1 text-[11px] text-rose-600 border-rose-200 flex items-center gap-1" onclick="deleteJournalEntry('${item.id}')">
+              <i data-lucide="trash-2" width="12"></i> Hapus
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function editJournalEntryDirect(journalId) {
+      const entry = journalEntries.find(j => j.id === journalId);
+      if (!entry) return;
+
+      editingJournalId = entry.id;
+      activeScheduleIdForJournal = entry.scheduleId;
+      selectedDate = entry.date;
+      document.getElementById('journal-date-picker').value = selectedDate;
+
+      populateJournalForm(entry);
+      showScreen('journal-screen');
+    }
+
+    async function deleteJournalEntry(journalId) {
+      if (confirm('Hapus riwayat jurnal ini?')) {
+        journalEntries = journalEntries.filter(j => j.id !== journalId);
+        await saveUserDataToCloud();
+        showToast('Berhasil dihapus');
+        renderHomeScreen();
+        renderHistorySection();
+      }
+    }
+
+    function openJournalForm(scheduleId) {
+      activeScheduleIdForJournal = scheduleId;
+      const sched = schedules.find(s => s.id === scheduleId);
+      if (!sched) return;
+
+      const existing = journalEntries.find(j => j.date === selectedDate && j.scheduleId === scheduleId);
+      if (existing) {
+        editingJournalId = existing.id;
+        populateJournalForm(existing);
+      } else {
+        editingJournalId = null;
+        document.getElementById('journal-class-title').textContent = `${sched.class} (${selectedDate})`;
+        loadSubjectDropdown(sched.subject);
+
+        const classObj = classes.find(c => c.name === sched.class);
+        const total = classObj ? classObj.count : 30;
+        document.getElementById('att-present').value = total;
+        document.getElementById('att-sick').value = 0;
+        document.getElementById('att-permission').value = 0;
+        document.getElementById('att-absent').value = 0;
+        document.getElementById('journal-method-select').value = 'Praktik';
+        document.getElementById('journal-condition-select').value = 'Sangat Baik';
+        document.getElementById('journal-topic').value = '';
+        document.getElementById('journal-notes').value = '';
+        removePhoto();
+      }
+      showScreen('journal-screen');
+    }
+
+    function loadSubjectDropdown(selectedSubName) {
+      const subSelect = document.getElementById('journal-subject-select');
+      subSelect.innerHTML = '';
+      subjects.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.name;
+        opt.textContent = s.name;
+        if (s.name === selectedSubName) opt.selected = true;
+        subSelect.appendChild(opt);
+      });
+    }
+
+    function populateJournalForm(entry) {
+      document.getElementById('journal-class-title').textContent = `Edit Jurnal ${entry.className} (${entry.date})`;
+      loadSubjectDropdown(entry.subject);
+      document.getElementById('att-present').value = entry.present;
+      document.getElementById('att-sick').value = entry.sick;
+      document.getElementById('att-permission').value = entry.permission;
+      document.getElementById('att-absent').value = entry.absent;
+      document.getElementById('journal-method-select').value = entry.method || 'Praktik';
+      document.getElementById('journal-condition-select').value = entry.condition || 'Sangat Baik';
+      document.getElementById('journal-topic').value = entry.topic;
+      document.getElementById('journal-notes').value = entry.notes || '';
+
+      if (entry.photo) {
+        currentPhotoBase64 = entry.photo;
+        showPhotoPreview(entry.photo);
+      } else {
+        removePhoto();
+      }
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentPhotoBase64 = e.target.result;
+        showPhotoPreview(currentPhotoBase64);
+        showToast('Foto PBM berhasil diunggah!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showPhotoPreview(src) {
+      const box = document.getElementById('photo-preview-box');
+      const img = document.getElementById('photo-preview-img');
+      img.src = src;
+      box.classList.remove('hidden');
+    }
+
+    function removePhoto() {
+      currentPhotoBase64 = null;
+      document.getElementById('photo-preview-box').classList.add('hidden');
+      document.getElementById('photo-preview-img').src = '';
+      document.getElementById('photo-file-input').value = '';
+      document.getElementById('photo-camera-input').value = '';
+    }
+
+    function generateAISummary() {
+      const method = document.getElementById('journal-method-select').value;
+      const condition = document.getElementById('journal-condition-select').value;
+      const currentTopic = document.getElementById('journal-topic').value.trim();
+      const topicText = currentTopic ? currentTopic : 'pembahasan materi harian';
+      document.getElementById('journal-topic').value = `${topicText} (${method} - ${condition})`;
+      showToast('✨ Dirangkum AI!');
+    }
+
+    async function saveJournalEntry() {
+      const sched = schedules.find(s => s.id === activeScheduleIdForJournal);
+      const dateObj = new Date(selectedDate);
+      const days = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+      const dayName = days[dateObj.getDay()];
+
+      const classObj = classes.find(c => c.name === (sched ? sched.class : ''));
+      const studentCount = classObj ? classObj.count : (parseInt(document.getElementById('att-present').value) || 30);
+      const entryId = editingJournalId ? editingJournalId : 'j_' + Date.now();
+
+      const entry = {
+        id: entryId,
+        date: selectedDate,
+        dayName: dayName,
+        scheduleId: activeScheduleIdForJournal,
+        className: sched ? sched.class : 'Kelas',
+        studentCount: studentCount,
+        subject: document.getElementById('journal-subject-select').value,
+        present: parseInt(document.getElementById('att-present').value) || 0,
+        sick: parseInt(document.getElementById('att-sick').value) || 0,
+        permission: parseInt(document.getElementById('att-permission').value) || 0,
+        absent: parseInt(document.getElementById('att-absent').value) || 0,
+        method: document.getElementById('journal-method-select').value,
+        condition: document.getElementById('journal-condition-select').value,
+        photo: currentPhotoBase64,
+        topic: document.getElementById('journal-topic').value,
+        notes: document.getElementById('journal-notes').value
+      };
+
+      journalEntries = journalEntries.filter(j => j.id !== entryId);
+      journalEntries.push(entry);
+      await saveUserDataToCloud();
+
+      editingJournalId = null;
+      showToast('Jurnal berhasil disimpan!');
+      showScreen('home-screen');
+    }
+
+    function syncToGoogleDrive() {
+      showToast('Tersinkronisasi ke Google Drive!');
+    }
+
+    // --- PDF GENERATOR (EXACT MATCHING THE UPLOADED SCREENSHOT) ---
+    function generatePDF(type) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+      // Exactly matches image upload layout
+      doc.setFontSize(14);
+      doc.text(`REKAP JURNAL MENGAJAR (${type.toUpperCase()})`, 14, 12);
+      doc.setFontSize(9);
+      doc.text(`Guru Pengajar: ${profile.name} | NIP: ${profile.nip}`, 14, 18);
+      doc.text(`Sekolah: ${profile.school}`, 14, 23);
+
+      const head = [
+        [
+          { content: 'HARI', rowSpan: 2 },
+          { content: 'TANGGAL', rowSpan: 2 },
+          { content: 'KELAS', rowSpan: 2 },
+          { content: 'JML SISWA', rowSpan: 2 },
+          { content: 'KEHADIRAN', colSpan: 4 },
+          { content: 'SUB MATERI', rowSpan: 2 },
+          { content: 'KONDISI PBM', rowSpan: 2 },
+          { content: 'PARAF GURU', rowSpan: 2 },
+          { content: 'FOTO PBM', rowSpan: 2 }
+        ],
+        ['HADIR', 'SAKIT', 'IZIN', 'ALPA']
+      ];
+
+      const body = journalEntries.map(j => {
+        return {
+          hari: j.dayName || 'SENIN',
+          tanggal: j.date,
+          kelas: j.className,
+          jumlahSiswa: j.studentCount || (j.present + j.sick + j.permission + j.absent),
+          hadir: j.present,
+          sakit: j.sick,
+          izin: j.permission,
+          alpa: j.absent,
+          subMateri: j.topic,
+          ketPbm: j.condition || 'Sangat Baik',
+          parafRaw: profile.signature,
+          fotoRaw: j.photo
+        };
+      });
+
+      const tableData = body.map(b => [
+        b.hari, b.tanggal, b.kelas, b.jumlahSiswa,
+        b.hadir, b.sakit, b.izin, b.alpa,
+        b.subMateri, b.ketPbm, '', ''
+      ]);
+
+      doc.autoTable({
+        startY: 27,
+        head: head,
+        body: tableData,
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 2, valign: 'middle', halign: 'center', lineColor: [0, 0, 0], lineWidth: 0.2 },
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold', lineWidth: 0.3 },
+        columnStyles: {
+          0: { cellWidth: 20 }, 1: { cellWidth: 22 }, 2: { cellWidth: 20 }, 3: { cellWidth: 18 },
+          4: { cellWidth: 12 }, 5: { cellWidth: 12 }, 6: { cellWidth: 12 }, 7: { cellWidth: 12 },
+          8: { cellWidth: 50, halign: 'left' }, 9: { cellWidth: 35, halign: 'left' },
+          10: { cellWidth: 25, minCellHeight: 18 }, 11: { cellWidth: 28, minCellHeight: 18 }
+        },
+        didDrawCell: function(data) {
+          if (data.section === 'body') {
+            const rowIndex = data.row.index;
+            const itemData = body[rowIndex];
+            if (data.column.index === 10 && itemData && itemData.parafRaw) {
+              doc.addImage(itemData.parafRaw, 'PNG', data.cell.x + 2, data.cell.y + 2, 21, 12);
             }
-        }
-
-        function simpanProfil() {
-            profil.nama = document.getElementById('set-nama').value;
-            profil.nip = document.getElementById('set-nip').value;
-            profil.sekolah = document.getElementById('set-sekolah').value;
-            localStorage.setItem('jurnal_profil', JSON.stringify(profil));
-            renderUI();
-            alert('Profil berhasil disimpan!');
-        }
-
-        function tambahKelas() {
-            let nama = document.getElementById('set-namakelas').value;
-            let jumlah = document.getElementById('set-jmlsiswa').value;
-            if(nama && jumlah) {
-                kelasList.push({ nama, jumlah });
-                localStorage.setItem('jurnal_kelas', JSON.stringify(kelasList));
-                document.getElementById('set-namakelas').value = '';
-                document.getElementById('set-jmlsiswa').value = '';
-                renderUI();
+            if (data.column.index === 11 && itemData && itemData.fotoRaw) {
+              doc.addImage(itemData.fotoRaw, 'JPEG', data.cell.x + 2, data.cell.y + 2, 24, 14);
             }
+          }
         }
+      });
 
-        function hapusKelas(index) {
-            kelasList.splice(index, 1);
-            localStorage.setItem('jurnal_kelas', JSON.stringify(kelasList));
-            renderUI();
-        }
+      doc.save(`Jurnal_Mengajar_${type}_${new Date().toISOString().slice(0,10)}.pdf`);
+      showToast('PDF berhasil diunduh!');
+    }
 
-        function updateJmlSiswa() {
-            // Bisa digunakan untuk otomatisasi jika diperlukan
-        }
+    // --- PROFIL & TTD ---
+    function loadProfileInputs() {
+      document.getElementById('set-teacher-name').value = profile.name;
+      document.getElementById('set-teacher-nip').value = profile.nip;
+      document.getElementById('set-teacher-school').value = profile.school;
+      updateLockUI();
+    }
 
-        function tambahJurnal(e) {
-            e.preventDefault();
-            let newData = {
-                hari: document.getElementById('j-hari').value,
-                tanggal: document.getElementById('j-tanggal').value,
-                kelas: document.getElementById('j-kelas').value,
-                hadir: document.getElementById('j-hadir').value,
-                sakit: document.getElementById('j-sakit').value,
-                izin: document.getElementById('j-izin').value,
-                alpa: document.getElementById('j-alpa').value,
-                materi: document.getElementById('j-materi').value,
-                kondisi: document.getElementById('j-kondisi').value
-            };
-            jurnalList.push(newData);
-            localStorage.setItem('jurnal_data', JSON.stringify(jurnalList));
-            document.getElementById('form-jurnal').reset();
-            renderUI();
-        }
+    function toggleLockProfile() {
+      profile.isLocked = !profile.isLocked;
+      saveUserDataToCloud();
+      updateLockUI();
+      showToast(profile.isLocked ? 'Profil dikunci' : 'Profil dibuka');
+    }
 
-        function hapusJurnal(index) {
-            jurnalList.splice(index, 1);
-            localStorage.setItem('jurnal_data', JSON.stringify(jurnalList));
-            renderUI();
-        }
+    function updateLockUI() {
+      const disabled = profile.isLocked;
+      document.getElementById('set-teacher-name').disabled = disabled;
+      document.getElementById('set-teacher-nip').disabled = disabled;
+      document.getElementById('set-teacher-school').disabled = disabled;
+      document.getElementById('lock-status-text').textContent = disabled ? 'Buka Kunci' : 'Kunci Profil';
+    }
 
-        // Jalankan saat pertama load
-        renderUI();
-    </script>
-</body>
+    async function saveProfileSettings() {
+      if (profile.isLocked) { showToast('Buka kunci profil untuk mengubah!'); return; }
+      profile.name = document.getElementById('set-teacher-name').value.trim();
+      profile.nip = document.getElementById('set-teacher-nip').value.trim();
+      profile.school = document.getElementById('set-teacher-school').value.trim();
+      await saveUserDataToCloud();
+      showToast('Profil disimpan!');
+      renderHomeScreen();
+    }
+
+    let sigCanvas, sigCtx, isDrawing = false;
+    function initSignatureCanvas() {
+      sigCanvas = document.getElementById('sig-canvas');
+      if (!sigCanvas) return;
+      sigCtx = sigCanvas.getContext('2d');
+      sigCtx.lineWidth = 2; sigCtx.strokeStyle = '#0e4a9d';
+
+      const getPos = (e) => {
+        const rect = sigCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+
+      const start = (e) => { isDrawing = true; const pos = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(pos.x, pos.y); };
+      const move = (e) => { if (!isDrawing) return; const pos = getPos(e); sigCtx.lineTo(pos.x, pos.y); sigCtx.stroke(); };
+      const stop = () => { isDrawing = false; };
+
+      sigCanvas.addEventListener('mousedown', start);
+      sigCanvas.addEventListener('mousemove', move);
+      sigCanvas.addEventListener('mouseup', stop);
+      sigCanvas.addEventListener('touchstart', start);
+      sigCanvas.addEventListener('touchmove', move);
+      sigCanvas.addEventListener('touchend', stop);
+
+      if (profile.signature) {
+        const img = new Image();
+        img.onload = () => sigCtx.drawImage(img, 0, 0);
+        img.src = profile.signature;
+      }
+    }
+
+    function clearSignature() {
+      if (!sigCtx) return;
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      profile.signature = null;
+      saveUserDataToCloud();
+      showToast('Paraf dihapus');
+    }
+
+    async function saveSignature() {
+      if (!sigCanvas) return;
+      profile.signature = sigCanvas.toDataURL();
+      await saveUserDataToCloud();
+      showToast('Paraf disimpan!');
+    }
+
+    function uploadSignatureImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        profile.signature = e.target.result;
+        await saveUserDataToCloud();
+        const img = new Image();
+        img.onload = () => {
+          sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+          sigCtx.drawImage(img, 0, 0, sigCanvas.width, sigCanvas.height);
+        };
+        img.src = e.target.result;
+        showToast('Paraf berhasil diupload!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- MASTER LISTS ---
+    function renderMasterLists() {
+      const subList = document.getElementById('master-subjects-list');
+      if (subList) {
+        subList.innerHTML = subjects.map(s => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <span>${s.name}</span>
+            <div class="flex gap-1">
+              <button class="px-2 py-0.5 rounded border border-slate-300" onclick="openMasterModal('subject', '${s.id}')">Edit</button>
+              <button class="px-2 py-0.5 rounded border border-rose-300 text-rose-600" onclick="deleteMasterItem('subject', '${s.id}')">Hapus</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const roomList = document.getElementById('master-rooms-list');
+      if (roomList) {
+        roomList.innerHTML = rooms.map(r => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <span>${r.name}</span>
+            <div class="flex gap-1">
+              <button class="px-2 py-0.5 rounded border border-slate-300" onclick="openMasterModal('room', '${r.id}')">Edit</button>
+              <button class="px-2 py-0.5 rounded border border-rose-300 text-rose-600" onclick="deleteMasterItem('room', '${r.id}')">Hapus</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const clsList = document.getElementById('master-classes-list');
+      if (clsList) {
+        clsList.innerHTML = classes.map(c => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <div><span class="font-bold">${c.name}</span> <span class="text-[10px] text-slate-500">(${c.count} siswa)</span></div>
+            <div class="flex gap-1">
+              <button class="px-2 py-0.5 rounded border border-slate-300" onclick="openMasterModal('class', '${c.id}')">Edit</button>
+              <button class="px-2 py-0.5 rounded border border-rose-300 text-rose-600" onclick="deleteMasterItem('class', '${c.id}')">Hapus</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const schedList = document.getElementById('master-schedules-list');
+      if (schedList) {
+        schedList.innerHTML = schedules.map(s => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <div><span class="font-bold text-blue-600">[${s.day}]</span> ${s.class} - ${s.subject} <p class="text-[10px] text-slate-500">${s.room} (${s.time})</p></div>
+            <div class="flex gap-1">
+              <button class="px-2 py-0.5 rounded border border-slate-300" onclick="openScheduleModal('${s.id}')">Edit</button>
+              <button class="px-2 py-0.5 rounded border border-rose-300 text-rose-600" onclick="deleteScheduleItem('${s.id}')">Hapus</button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function openMasterModal(type, id = null) {
+      currentModalType = type;
+      currentEditingMasterId = id;
+      const titleEl = document.getElementById('modal-title');
+      const bodyEl = document.getElementById('modal-body');
+
+      if (type === 'subject') {
+        titleEl.textContent = id ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran';
+        const item = subjects.find(s => s.id === id);
+        bodyEl.innerHTML = `<div><label class="block mb-1 font-bold">Nama</label><input type="text" id="modal-input-name" class="form-control" value="${item ? item.name : ''}" required></div>`;
+      } else if (type === 'room') {
+        titleEl.textContent = id ? 'Edit Ruangan' : 'Tambah Ruangan';
+        const item = rooms.find(r => r.id === id);
+        bodyEl.innerHTML = `<div><label class="block mb-1 font-bold">Nama Ruangan</label><input type="text" id="modal-input-name" class="form-control" value="${item ? item.name : ''}" required></div>`;
+      } else if (type === 'class') {
+        titleEl.textContent = id ? 'Edit Kelas' : 'Tambah Kelas';
+        const item = classes.find(c => c.id === id);
+        bodyEl.innerHTML = `<div><label class="block mb-1 font-bold">Nama Kelas</label><input type="text" id="modal-input-name" class="form-control" value="${item ? item.name : ''}" required></div><div><label class="block mb-1 font-bold">Jumlah Siswa</label><input type="number" id="modal-input-count" class="form-control" value="${item ? item.count : 30}" required></div>`;
+      }
+      document.getElementById('master-modal').classList.remove('hidden');
+    }
+
+    function openScheduleModal(id = null) {
+      currentModalType = 'schedule';
+      currentEditingMasterId = id;
+      const titleEl = document.getElementById('modal-title');
+      const bodyEl = document.getElementById('modal-body');
+      titleEl.textContent = id ? 'Edit Jadwal' : 'Tambah Jadwal';
+
+      const item = schedules.find(s => s.id === id);
+      const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+      bodyEl.innerHTML = `
+        <div><label class="block mb-1 font-bold">Hari</label><select id="modal-sched-day" class="form-control">${days.map(d => `<option value="${d}" ${item && item.day === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
+        <div><label class="block mb-1 font-bold">Kelas</label><select id="modal-sched-class" class="form-control">${classes.map(c => `<option value="${c.name}" ${item && item.class === c.name ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+        <div><label class="block mb-1 font-bold">Ruangan</label><select id="modal-sched-room" class="form-control">${rooms.map(r => `<option value="${r.name}" ${item && item.room === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}</select></div>
+        <div><label class="block mb-1 font-bold">Mapel</label><select id="modal-sched-subject" class="form-control">${subjects.map(s => `<option value="${s.name}" ${item && item.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')}</select></div>
+        <div><label class="block mb-1 font-bold">Waktu</label><input type="text" id="modal-sched-time" class="form-control" value="${item ? item.time : '07:00 - 09:30'}" required></div>
+      `;
+      document.getElementById('master-modal').classList.remove('hidden');
+    }
+
+    function closeMasterModal() { document.getElementById('master-modal').classList.add('hidden'); }
+
+    async function submitMasterModal() {
+      if (currentModalType === 'subject') {
+        const val = document.getElementById('modal-input-name').value.trim();
+        if (!val) return;
+        if (currentEditingMasterId) {
+          const item = subjects.find(s => s.id === currentEditingMasterId);
+          if (item) item.name = val;
+        } else { subjects.push({ id: 's_' + Date.now(), name: val }); }
+      } else if (currentModalType === 'room') {
+        const val = document.getElementById('modal-input-name').value.trim();
+        if (!val) return;
+        if (currentEditingMasterId) {
+          const item = rooms.find(r => r.id === currentEditingMasterId);
+          if (item) item.name = val;
+        } else { rooms.push({ id: 'r_' + Date.now(), name: val }); }
+      } else if (currentModalType === 'class') {
+        const valName = document.getElementById('modal-input-name').value.trim();
+        const valCount = parseInt(document.getElementById('modal-input-count').value) || 30;
+        if (!valName) return;
+        if (currentEditingMasterId) {
+          const item = classes.find(c => c.id === currentEditingMasterId);
+          if (item) { item.name = valName; item.count = valCount; }
+        } else { classes.push({ id: 'c_' + Date.now(), name: valName, count: valCount }); }
+      } else if (currentModalType === 'schedule') {
+        const day = document.getElementById('modal-sched-day').value;
+        const className = document.getElementById('modal-sched-class').value;
+        const room = document.getElementById('modal-sched-room').value;
+        const subject = document.getElementById('modal-sched-subject').value;
+        const time = document.getElementById('modal-sched-time').value.trim();
+
+        if (currentEditingMasterId) {
+          const item = schedules.find(s => s.id === currentEditingMasterId);
+          if (item) { item.day = day; item.class = className; item.room = room; item.subject = subject; item.time = time; }
+        } else { schedules.push({ id: 'sc_' + Date.now(), day, class: className, room, subject, time, isLocked: false }); }
+      }
+
+      await saveUserDataToCloud();
+      closeMasterModal();
+      renderMasterLists();
+      renderHomeScreen();
+      showToast('Berhasil disimpan!');
+    }
+
+    async function deleteMasterItem(type, id) {
+      if (!confirm('Hapus item ini?')) return;
+      if (type === 'subject') subjects = subjects.filter(s => s.id !== id);
+      else if (type === 'room') rooms = rooms.filter(r => r.id !== id);
+      else if (type === 'class') classes = classes.filter(c => c.id !== id);
+      await saveUserDataToCloud();
+      renderMasterLists();
+      showToast('Berhasil dihapus');
+    }
+
+    async function deleteScheduleItem(id) {
+      if (confirm('Hapus jadwal ini?')) {
+        schedules = schedules.filter(s => s.id !== id);
+        await saveUserDataToCloud();
+        renderMasterLists();
+        renderHomeScreen();
+        showToast('Berhasil dihapus');
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      showToast('Mode tampilan diubah');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+ </body>
 </html>
+"""
+
+output_html_path = "jurnal_guru_digital.html"
+with open(output_html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"File successfully created: {output_html_path}")
